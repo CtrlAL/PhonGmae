@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UIDoc/UIStyles/massageStyles.uss?fileID=7433441132597879392&amp;guid=795922f818546b14fa8769caf5898a43&amp;type=3#massageStyles" />
+    <ui:GroupBox name="MassangerHeader" style="height: 55px; width: 346px; flex-direction: row; -unity-background-image-tint-color: rgba(255, 255, 255, 0); background-color: rgba(0, 0, 0, 0.82); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+        <ui:IMGUIContainer style="background-image: url(&apos;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=3316425174430470091&amp;guid=996df47e2e826bd4a9431c0a57de1ce6&amp;type=3#arrow-up@2x&apos;); height: 20px; width: 20px; margin-left: 0; margin-right: auto; margin-top: auto; margin-bottom: auto;" />
+        <ui:Label text="Name" display-tooltip-when-elided="true" name="Label" style="margin-left: auto; margin-right: auto; height: 24px; width: 61px; justify-content: flex-start; align-items: flex-end; top: auto; font-size: 20%; white-space: nowrap;" />
+        <ui:IMGUIContainer style="background-image: url(&apos;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=3316425174430470091&amp;guid=996df47e2e826bd4a9431c0a57de1ce6&amp;type=3#arrow-up@2x&apos;); height: 20px; width: 20px; margin-left: auto; margin-right: 0; margin-top: auto; margin-bottom: auto;" />
+    </ui:GroupBox>
+    <ui:GroupBox name="MassageList" style="height: 339px; background-color: rgb(0, 0, 0); width: 346px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
+    <ui:GroupBox name="MassageInput" style="height: 61px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+        <ui:Label text="Label" display-tooltip-when-elided="true" style="height: 61px;" />
+    </ui:GroupBox>
+</ui:UXML>

@@ -1,0 +1,9 @@
+.label {
+    -unity-font: url('project://database/Library/unity%20default%20resources?fileID=10102&guid=0000000000000000e000000000000000&type=0#Arial');
+    -unity-font-definition: none;
+    -unity-font-style: bold;
+    font-size: 20%;
+}
+
+.button {
+}
