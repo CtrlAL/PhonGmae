@@ -28,14 +28,12 @@ public class ScreenController : MonoBehaviour
         app_window.transform.SetParent(Screen.transform);
     }
     private void CreateAppGrid(){
-        Debug.Log(AppStorage.appList);
         foreach (GameObject app_obj in AppStorage.appList){ 
             foreach (GameObject app_ico in AppStorage.appIconList){
                 if(app_obj.name == app_ico.name + "Window"){
-                    Debug.Log("Hola");
                     CreateApp(app_obj, app_ico);
                 }else{
-                    Debug.Log("Proebalsya prefub");
+                    //Debug.Log("Proebalsya prefub");
                 }
             }  
         }

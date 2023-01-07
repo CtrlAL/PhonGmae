@@ -8,11 +8,23 @@ using Mono.Data.Sqlite;
 
 
 //List<ContactNotificationInfo> contat_not_info = new List<ContactNotificationInfo>();
-
-public struct ContactNotificationInfo{
-    public bool enable;
+public class ContactNotificationInfo{
     public string contact_id;
     public string contact_name;
+
+    public bool enable;
+
+    public ContactNotificationInfo(Contact c){
+        contact_id = c.contact_id;
+        contact_name = c.contact_name;
+        enable = true;
+    }
+
+    public ContactNotificationInfo(string contactID, string ContactName, bool enableData){
+        contact_id = contactID;
+        contact_name = ContactName;
+        enable = enableData;
+    }
 }
 public static class ContactNotificationInfoList
 {
@@ -20,15 +32,45 @@ public static class ContactNotificationInfoList
 }
 
 public static class Appereance{
-    public static byte[] backgound_bytecode = {};
-    public static int image_width = 0;
-    public static int image_height = 0;
 
-    public static float pivot_x = 0;
+    public static ImageData backgroundImage;
 
-    public static float pivot_y = 0;
+    public static ImageData userAvatarImage;
 
-    public static string massage_color = "";
+    public static string message_color = "";
+
+    public static void AddAppereanceToSqliteCommand(in SqliteCommand command){
+        if(Appereance.backgroundImage == null || Appereance.userAvatarImage == null){
+            return;
+        }
+        //AddAvatarImageParams(command);
+        AddBackgroundImageeParams(command);
+        command.Parameters.Add(new SqliteParameter("@id", 1));
+        command.Parameters.Add(new SqliteParameter("@message_color", Appereance.message_color));
+    }
+
+    /*
+    public static void AddAvatarImageParams(in SqliteCommand command){
+        command.Parameters.Add(new SqliteParameter("@userAvatarByteCode", Appereance.userAvatarImage.imageData));
+        command.Parameters.Add(new SqliteParameter("@avatar_width", Appereance.userAvatarImage.image_height));
+        command.Parameters.Add(new SqliteParameter("@avatar_height", Appereance.userAvatarImage.image_height));
+    }
+    */
+
+    public static void AddBackgroundImageeParams(in SqliteCommand command){
+        command.Parameters.Add(new SqliteParameter("@backgound_bytecode", Appereance.backgroundImage.imageData));
+        command.Parameters.Add(new SqliteParameter("@image_width", Appereance.backgroundImage.image_width));
+        command.Parameters.Add(new SqliteParameter("@image_height", Appereance.backgroundImage.image_height));
+    }
+
+    public static void ReadAppereanceFromReaderSqlite(IDataReader reader){
+        while (reader.Read()){          
+                //Appereance.userAvatarImage = new ImageData((byte[])reader["userAvatarByteCode"], Convert.ToInt32(reader["avatar_widht"]), Convert.ToInt32(reader["avatar_height"])); 
+                Appereance.backgroundImage = new ImageData((byte[])reader["backgound_bytecode"], Convert.ToInt32(reader["image_height"]), Convert.ToInt32(reader["image_width"]));
+
+                Appereance.message_color = (string)reader["message_color"];
+            }
+    }
 }
 
 public static class MassageSeettingsDBController{
@@ -43,9 +85,25 @@ public static class MassageSeettingsDBController{
                                             backgound_bytecode BLOB,
                                             image_width INTEGER,
                                             image_height INTEGER,
-                                            pivot_x REAL,
-                                            pivot_y REAL,
-                                            massage_color VARCHAR(30));";
+                                            userAvatarByteCode BLOB,
+                                            avatar_width INTEGER,
+                                            avatar_height INTEGER,
+                                            message_color VARCHAR(30));";
+                command.ExecuteNonQuery();
+            }
+            connection.Close();
+        }
+    }
+
+    public static void CreateAppereancePresetRow(){
+        using (var connection = new SqliteConnection(dbName)){
+            connection.Open();
+            using (var command = connection.CreateCommand()){ 
+                command.CommandText = $@"REPLACE INTO appereance_setting 
+                                            (id) 
+                                            VALUES (@id);";
+                
+                command.Parameters.Add(new SqliteParameter("id", 1));
                 command.ExecuteNonQuery();
             }
             connection.Close();
@@ -59,34 +117,72 @@ public static class MassageSeettingsDBController{
                 command.CommandText = $@"SELECT * FROM appereance_setting;";
 
                 using(IDataReader reader = command.ExecuteReader()){
-                    while (reader.Read()){          
-                        Appereance.backgound_bytecode = (byte[])reader["backgound_bytecode"];
-                        Appereance.image_height = Convert.ToInt32(reader["image_height"]);
-                        Appereance.image_width = Convert.ToInt32(reader["image_width"]);
-                        Appereance.pivot_x = (float)reader["pivot_x"];
-                        Appereance.pivot_y = (float)reader["pivot_y"];
-                        Appereance.massage_color = (string)reader["massage_color"];
-                    }
+                    Appereance.ReadAppereanceFromReaderSqlite(reader);
                 }
                 command.ExecuteNonQuery();
             }
             connection.Close();
         }
     }
+
+    /*
     public static void SaveAppereance(){
         using (var connection = new SqliteConnection(dbName)){
             connection.Open();
             using (var command = connection.CreateCommand()){ 
                 command.CommandText = $@"REPLACE INTO appereance_setting 
-                                            (id ,backgound_bytecode, image_width, image_height, pivot_x, pivot_y, massage_color) 
-                                            VALUES (@id , @backgound_bytecode, @image_width, @image_height, @pivot_x, @pivot_y, @massage_color);";
-                command.Parameters.Add(new SqliteParameter("@backgound_bytecode", Appereance.backgound_bytecode));
-                command.Parameters.Add(new SqliteParameter("@id", 1));
-                command.Parameters.Add(new SqliteParameter("@image_width", Appereance.image_width));
-                command.Parameters.Add(new SqliteParameter("@image_height", Appereance.image_height));
-                command.Parameters.Add(new SqliteParameter("@pivot_x", Appereance.pivot_x));
-                command.Parameters.Add(new SqliteParameter("@pivot_y", Appereance.pivot_y));
-                command.Parameters.Add(new SqliteParameter("@massage_color", ""));
+                                            (id ,backgound_bytecode ,image_width ,image_height ,userAvatarByteCode ,avatar_width ,avatar_height , massage_color) 
+                                            VALUES (@id ,@backgound_bytecode ,@image_width ,@image_height ,@userAvatarByteCode ,@avatar_width, @avatar_height, @massage_color);";
+                
+                Appereance.AddAppereanceToSqliteCommand(command);
+                command.ExecuteNonQuery();
+            }
+            connection.Close();
+        }
+    }
+    */
+
+
+    public static void UpdateBackground(){
+        using (var connection = new SqliteConnection(dbName)){
+            connection.Open();
+            using (var command = connection.CreateCommand()){ 
+                command.CommandText = $@"UPDATE appereance_setting 
+                                            SET backgound_bytecode = @backgound_bytecode , image_width = @image_width , image_height = @image_height
+                                            WHERE id = 1;";
+                
+                Appereance.AddBackgroundImageeParams(command);
+                command.ExecuteNonQuery();
+            }
+            connection.Close();
+        }
+    }
+    /*
+    public static void UpdateAvatar(){
+        using (var connection = new SqliteConnection(dbName)){
+            connection.Open();
+            using (var command = connection.CreateCommand()){ 
+                command.CommandText = $@"UPDATE appereance_setting 
+                                            SET userAvatarByteCode = @userAvatarByteCode , avatar_width = @avatar_width , avatar_height = @avatar_height
+                                            WHERE id = {1};";
+                
+                Appereance.A(command);
+                command.ExecuteNonQuery();
+            }
+            connection.Close();
+        }
+    }
+    */
+
+    public static void UpdateMessageColor(){
+        using (var connection = new SqliteConnection(dbName)){
+            connection.Open();
+            using (var command = connection.CreateCommand()){ 
+                command.CommandText = $@"UPDATE appereance_setting 
+                                            SET message_color = @message_color
+                                            WHERE id = 1;";
+                
+                command.Parameters.Add(new SqliteParameter("message_color", Appereance.message_color));
                 command.ExecuteNonQuery();
             }
             connection.Close();
@@ -143,10 +239,7 @@ public static class MassageSeettingsDBController{
     public static void CreateNottificationList(){
         List<Contact> ContactList = MassageDBControoler.GetContactList();
         foreach(Contact c in ContactList){
-            ContactNotificationInfo contact_not;
-            contact_not.contact_id = c.contact_id;
-            contact_not.contact_name = c.contact_name;
-            contact_not.enable = true;
+            ContactNotificationInfo contact_not = new ContactNotificationInfo(c);
             InsertContact(contact_not);
         }
     }
@@ -158,13 +251,14 @@ public static class MassageSeettingsDBController{
             using (var command = connection.CreateCommand()){ 
                 command.CommandText = $@"SELECT * FROM nottification_setting;";
                 using(IDataReader reader = command.ExecuteReader()){
-                    ContactNotificationInfo contact_not = new ContactNotificationInfo();
                     while(reader.Read()){
-                        contact_not.enable = Convert.ToBoolean(reader["enable"]);
-                        contact_not.contact_id = (string)reader["contact_id"];
-                        contact_not.contact_name = (string)reader["contact_name"];
+                        ContactNotificationInfo contact_not = new ContactNotificationInfo
+                                                                    ((string)reader["contact_id"], 
+                                                                    (string)reader["contact_name"], 
+                                                                    Convert.ToBoolean(reader["enable"]));
+                        ContactNotificationInfoList.not_info_list.Add(contact_not);
                     }
-                    ContactNotificationInfoList.not_info_list.Add(contact_not);
+                    
                 }
             }
             connection.Close();

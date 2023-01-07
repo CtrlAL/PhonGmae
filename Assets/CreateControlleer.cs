@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class CreateControlleer : MonoBehaviour
@@ -10,15 +11,28 @@ public class CreateControlleer : MonoBehaviour
     TMP_InputField NameInput;
     [SerializeField]
     LoadContactList ContactLisstLoader;
+    [SerializeField] NotListControllr notListController;
+    [SerializeField] Image Avatar;
+
     // Update is called once per frame
+
+    void Start(){
+        Avatar.sprite = Resources.LoadAll<Sprite>("Sprites/MassageApp/ContactAvatar/")[0];
+    }
     public void CreateNewContact(){
+        if(NameInput.text==""){
+            return;
+        }
         Contact c = new Contact(NameInput.text);
+
+        Texture2D tex = Avatar.sprite.texture;
+        Debug.Log(tex.format);
+        ImageData contactAvatarImage = new ImageData(tex.GetRawTextureData(), tex.width, tex.height);
+        c.contactImage = contactAvatarImage;
+
+
         MassageDBControoler.CreateContact(c);
-        ContactNotificationInfo c_info;
-        c_info.contact_id = c.contact_id;
-        c_info.contact_name = c.contact_name;
-        c_info.enable = true;
-        MassageSeettingsDBController.InsertContact(c_info);
         ContactLisstLoader.CreateListElem(c);
+        notListController.AddToNotList(c);
     }
 }

@@ -7,13 +7,21 @@ public class CreateTable : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //DropAllDB();
+        CreateAllDB();
+    }
+
+    public void CreateAllDB(){
         MassageDBControoler.CreateContactDB();
         MassageDBControoler.CreateChatMassageDB();
         MassageSeettingsDBController.CreateAppereanceDB();
         MassageSeettingsDBController.CreateNottificationDB();
         MassageSeettingsDBController.CreateNottificationList();
-
-        //MassageSeettingsDBController.DropAll();
-        //MassageDBControoler.DropChatMassageDB();
+    }
+    
+    public void DropAllDB(){
+        MassageDBControoler.DropChatMassageDB();
+        MassageDBControoler.DropContactDB();
+        MassageSeettingsDBController.DropAll();
     }
 }

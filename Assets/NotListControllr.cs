@@ -7,21 +7,31 @@ using TMPro;
 public class NotListControllr : MonoBehaviour
 {
     // Start is called before the first frame update
+    private bool createdStatus;
     [SerializeField] GameObject Content, NetListElemPrefub;
 
-    void Start()
-    {
-        CreateNotList();
+    public void CreateNotList(){
+        Debug.Log(ContactNotificationInfoList.not_info_list.Count);
+        foreach(ContactNotificationInfo c in ContactNotificationInfoList.not_info_list){         
+            InstantiateNotObject(c);
+        }   
+        createdStatus = true; 
     }
 
-    private void CreateNotList(){
-          foreach(ContactNotificationInfo c in ContactNotificationInfoList.not_info_list){
-                GameObject not_list_elem =  Instantiate(NetListElemPrefub, Content.transform); 
-                not_list_elem.transform.SetParent(Content.transform);
-                not_list_elem.GetComponentInChildren<TextMeshProUGUI>().text = c.contact_name;
-                not_list_elem.GetComponent<NotInfo>().contact_not = c;
-                not_list_elem.GetComponentInChildren<Toggle>().isOn = c.enable;
-                not_list_elem.GetComponentInChildren<ChangeEnableNot>().SetNotInfo(not_list_elem.GetComponent<NotInfo>());
-          }    
+    private void InstantiateNotObject(ContactNotificationInfo cInfo){
+        GameObject not_list_elem =  Instantiate(NetListElemPrefub, Content.transform); 
+        not_list_elem.transform.SetParent(Content.transform);
+        not_list_elem.GetComponentInChildren<TextMeshProUGUI>().text = cInfo.contact_name;
+        not_list_elem.GetComponent<NotInfo>().contact_not = cInfo;
+        not_list_elem.GetComponentInChildren<Toggle>().isOn = cInfo.enable;
+        not_list_elem.GetComponentInChildren<ChangeEnableNot>().SetNotInfo(not_list_elem.GetComponent<NotInfo>());
+    }
+
+    public void AddToNotList(Contact c){
+        if(createdStatus){ 
+            ContactNotificationInfo cInfo = new ContactNotificationInfo(c);
+            MassageSeettingsDBController.InsertContact(cInfo); 
+            InstantiateNotObject(cInfo);
+        }
     }
 }

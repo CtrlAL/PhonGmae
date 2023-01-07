@@ -12,7 +12,19 @@ enum BoolBaseState{
     _TABLE_NOT_EXIST
 }
 
-public class Contact{   
+public class ImageData{
+    public byte[] imageData = new byte[] {};
+    public int image_width;
+    public int image_height;
+
+    public ImageData(byte[] _imageData, int iw, int ih){
+        imageData = _imageData;
+        image_width = iw;
+        image_height = ih;
+    }
+}
+public class Contact{  
+    public ImageData contactImage;  
     public string contact_id;
     public string contact_name;
 
@@ -25,6 +37,15 @@ public class Contact{
         contact_name = _contact_name;
         Guid contact_uuid = Guid.NewGuid();
         contact_id = contact_uuid.ToString();
+    }
+
+    public void AddContactToSqliteCommand(in SqliteCommand command){
+        command.Parameters.Add(new SqliteParameter("@contactAvatarImage", contactImage.imageData));
+        command.Parameters.Add(new SqliteParameter("@image_width", contactImage.image_width));
+        command.Parameters.Add(new SqliteParameter("@image_height", contactImage.image_height));
+        command.Parameters.Add(new SqliteParameter("@contactName", contact_name));
+        command.Parameters.Add(new SqliteParameter("@contact_id", contact_id));
+        //command.Parameters.Add(new SqliteParameter("@contact_id", ));
     }
 }
 
@@ -69,16 +90,19 @@ public static class MassageDBControoler
                 command.CommandText = $@"CREATE TABLE IF NOT EXISTS {t_name} (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT ,
                                             contact_id VARCHAR(40) UNIQUE,
-                                            ContactName VARCHAR(30));";
+                                            contactName VARCHAR(30),
+                                            contactAvatarImage BLOB,
+                                            image_width INTEGER,
+                                            image_height INTEGER);";
                                             //PhoneOwnerName VARCHAR(30)
                 command.ExecuteNonQuery();
             }
             connection.Close();
         }
-        if(EmptyCheck(t_name) == BoolBaseState._TRUE){
-            string[] defult_contact = {"Мама", "Папа"};
-            CreateContacts(defult_contact);
-        }
+        //if(EmptyCheck(t_name) == BoolBaseState._TRUE){
+        //    string[] defult_contact = {"Мама", "Папа"};
+        //    CreateContacts(defult_contact);
+        //}
     }
 
     public static void DropContactDB(){
@@ -99,14 +123,16 @@ public static class MassageDBControoler
             connection.Open();
             using (var command = connection.CreateCommand()){ 
                 command.CommandText = $@"REPLACE INTO contact_list 
-                                            (ContactName, contact_id) 
-                                            VALUES ('{c.contact_name}', '{c.contact_id}');";
+                                            (contactName, contact_id, contactAvatarImage, image_width, image_height) 
+                                            VALUES (@contactName, @contact_id, @contactAvatarImage, @image_width, @image_height);";
+                c.AddContactToSqliteCommand(command);
                 command.ExecuteNonQuery();
             }
             connection.Close();
         }
     }
 
+    /*
     public static void CreateContacts(string[] contact_name_list){ 
         using (var connection = new SqliteConnection(dbName)){
             connection.Open();
@@ -115,7 +141,7 @@ public static class MassageDBControoler
                     try{
                     Contact c = new Contact(name);
                     command.CommandText = $@"REPLACE INTO contact_list 
-                                                (ContactName, contact_id) 
+                                                (contactName, contact_id) 
                                                 VALUES ('{c.contact_name}',
                                                 '{c.contact_id}');";
                     command.ExecuteNonQuery();
@@ -129,6 +155,7 @@ public static class MassageDBControoler
             
         }
     }
+    */
 
     
     public static void CreateChatMassageDB(){   
@@ -186,6 +213,8 @@ public static class MassageDBControoler
                         Contact contact = new Contact();
                         contact.contact_id = reader["contact_id"].ToString();
                         contact.contact_name = reader["ContactName"].ToString();
+                        ImageData contactAvatarImage = new ImageData((byte[])reader["contactAvatarImage"], Convert.ToInt32(reader["image_width"]), Convert.ToInt32(reader["image_height"]));
+                        contact.contactImage = contactAvatarImage;
                         contact_list.Add(contact);
                     }
                 }

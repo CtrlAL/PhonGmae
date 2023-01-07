@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class LoadContactList : MonoBehaviour
@@ -47,6 +48,13 @@ public class LoadContactList : MonoBehaviour
                 child.GetComponent<TextMeshProUGUI>().text = c.contact_name;
             }else if(child.name == "OnlineState"){
                 child.GetComponent<TextMeshProUGUI>().text = "online";
+            }if(child.name == "ContactAvatar"){
+
+                //Texture2D texCopy = new (c.contactImage.image_width, c.contactImage.image_height, TextureFormat.DXT5, false);
+                //texCopy.LoadRawTextureData(c.contactImage.avatarImageData);
+                //texCopy.Apply();
+                //Sprite mySprite = Sprite.Create(texCopy, new Rect(0.0f, 0.0f, c.contactImage.image_width, c.contactImage.image_height), new Vector3(0.5f, 0.5f, 100f));
+                //child.GetComponent<Image>().sprite = mySprite;
             }
         }
     }

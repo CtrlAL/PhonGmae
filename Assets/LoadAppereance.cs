@@ -12,15 +12,19 @@ public class LoadAppereance : MonoBehaviour
     {
         MassageSeettingsDBController.ReadAppereance();
         LoadBackGround();
+        LoadColor();
     }
 
     // Update is called once per frame
     void LoadBackGround(){
-        Texture2D texCopy = new(Appereance.image_width, Appereance.image_height, TextureFormat.DXT1, false); //, tex.format, tex.mipmapCount > 1
+        if(Appereance.backgroundImage == null){
+            return;
+        }
+        Texture2D texCopy = new(Appereance.backgroundImage.image_width, Appereance.backgroundImage.image_height, TextureFormat.DXT1, false); //, tex.format, tex.mipmapCount > 1
         //Debug.Log(Appereance.backgound_bytecode);
-        texCopy.LoadRawTextureData(Appereance.backgound_bytecode);
+        texCopy.LoadRawTextureData(Appereance.backgroundImage.imageData);
         texCopy.Apply();
-        Sprite mySprite = Sprite.Create(texCopy, new Rect(0.0f, 0.0f, Appereance.image_width, Appereance.image_height), new Vector3(Appereance.pivot_x, Appereance.pivot_y, 100));
+        Sprite mySprite = Sprite.Create(texCopy, new Rect(0.0f, 0.0f, Appereance.backgroundImage.image_width, Appereance.backgroundImage.image_height), new Vector3(0.5f, 0.5f, 100));
 
         MassageBackroundImage.sprite = mySprite;
         MassageBackroundImage.pixelsPerUnitMultiplier = 1;
@@ -28,9 +32,9 @@ public class LoadAppereance : MonoBehaviour
     }
 
     void LoadColor(){
-        Color massage_color;
-        ColorUtility.TryParseHtmlString(Appereance.massage_color, out massage_color);
-        MassageColor.color = massage_color;
+        Color message_color;
+        ColorUtility.TryParseHtmlString(Appereance.message_color, out message_color);
+        MassageColor.color = message_color;
         
     }
 }
